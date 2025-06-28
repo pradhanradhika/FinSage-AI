@@ -1,0 +1,5 @@
+[
+    {"id": "1", "text": "Home Loan: Requires credit score > 650, income > ₹40,000/month, 10% down payment, interest rate 6-8%."},
+    {"id": "2", "text": "Personal Loan: Credit score > 600, income > ₹20,000/month, interest rate 10-12%."},
+    {"id": "3", "text": "RBI Guideline: Loan applications must include income proof and ID verification."}
+]

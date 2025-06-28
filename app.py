@@ -1,6 +1,8 @@
 import streamlit as st
-from agent import get_consultation_response, get_application_guidance, explain_legal_terms, check_compliance, generate_savings_plan
+from agent import get_consultation_response, parse_financial_summary,get_application_guidance, explain_legal_terms, check_compliance, generate_savings_plan
 from pathlib import Path
+
+
 
 # Set page configuration
 st.set_page_config(page_title="Loan & Mortgage Helper", layout="wide", initial_sidebar_state="collapsed")
@@ -58,92 +60,66 @@ with tab1:
 
 # ------------- TAB 2: LOAN APPLICATION ASSISTANT -----------------
 with tab2:
-    st.header("📄 Loan Application Assistant")
-    st.markdown("Upload documents, provide financial details, and get guidance on your application and compliance.")
-
+    st.header("Loan Application Assistant")
+    st.markdown("Enter your financial details for quick loan guidance.")
     with st.form("application_form"):
-        st.subheader("Financial Documents")
-        col1, col2 = st.columns(2)
-        with col1:
-            tax_return = st.file_uploader("Last 2 Years of Tax Returns (PDF)", type=["pdf"], help="Upload tax returns for income verification.")
-            pay_stubs = st.file_uploader("Recent Pay Stubs (PDF)", type=["pdf"], help="Upload latest pay stubs (last 3 months).")
-        with col2:
-            bank_statements = st.file_uploader("Recent Bank Statements (PDF)", type=["pdf"], help="Upload bank statements for 3-6 months.")
-            id_proof = st.file_uploader("ID Proof (PDF)", type=["pdf"], help="Upload a government-issued ID (e.g., Aadhaar, Passport).")
+        financial_summary = st.text_area(
+            "Describe Your Financial Situation:",
+            placeholder="e.g., I earn ₹50,000 monthly, have a 700 credit score, and ₹10,000 in debts.",
+            help="Include income, credit score, debts, or employment details."
+        )
+        loan_clause = st.text_area(
+            "Paste a Loan Clause (Optional):",
+            placeholder="e.g., 'A prepayment penalty of $500 applies...'",
+            help="For explanation of loan terms."
+        )
 
-        st.subheader("Financial Details")
-        col3, col4 = st.columns(2)
-        with col3:
-            income_details = st.text_input("Monthly Income (₹):", placeholder="e.g., 50000", help="Your current monthly income after taxes.")
-            debts = st.text_input("Total Monthly Debts (₹):", placeholder="e.g., 10000", help="Sum of all monthly debt payments.")
-        with col4:
-            employment_status = st.selectbox("Employment Status:", ["Employed", "Self-Employed", "Unemployed", "Retired"], help="Your current employment status.")
-            years_employed = st.number_input("Years at Current Job:", min_value=0.0, step=0.5, format="%.1f", help="How long have you been at your current job?")
-
-        other_docs = st.text_area("Additional Documents or Notes:", placeholder="e.g., Property documents", help="Mention other relevant documents or details.")
-
-        st.subheader("Regulatory Compliance and Loan Terms")
-        loan_clause = st.text_area("Paste a Loan Clause (Optional):", placeholder="e.g., 'A prepayment penalty of $500 applies if the loan is paid off within 3 years.'", help="Paste a loan clause to get a simple explanation.")
-        document_summary = st.text_area("Summarize Key Loan Document Details (Optional):", placeholder="e.g., Loan Amount: ₹20,00,000, Interest Rate: 7%, Term: 20 years, Fees: ₹10,000", help="Enter key details from your loan agreement for review.")
-
-        submitted = st.form_submit_button("✅ Validate & Get Guidance")
+        submitted = st.form_submit_button("Get Guidance")
         if submitted:
-            with st.spinner("Checking your application and analyzing compliance..."):
-                # Application Summary
-                summary = f"""
-**Application Summary**:
-- **Documents Uploaded**:
-  - Tax Returns: {"Provided" if tax_return else "Missing"}
-  - Pay Stubs: {"Provided" if pay_stubs else "Missing"}
-  - Bank Statements: {"Provided" if bank_statements else "Missing"}
-  - ID Proof: {"Provided" if id_proof else "Missing"}
-  - Other Documents/Notes: {other_docs if other_docs else "None"}
-- **Financial Details**:
-  - Monthly Income: {income_details if income_details else "Not Provided"}
-  - Monthly Debts: {debts if debts else "Not Provided"}
-  - Employment Status: {employment_status}
-  - Years at Current Job: {years_employed if years_employed else "Not Provided"}
+            if not financial_summary or not financial_summary.strip():
+                st.warning("Please provide a valid financial summary (e.g., income, credit score, debts).")
+                parsed_data = {"income": None, "credit_score": None, "debts": None, "employment_status": None}
+                summary = "**Application Summary**:\n\nIncome: Not Provided\nCredit Score: Not Provided\nDebts: Not Provided\nEmployment Status: Not Provided"
+            else:
+                with st.spinner("Analyzing your application..."):
+                    parsed_data = parse_financial_summary(financial_summary)
+                    summary = f"""**Application Summary**:
+Income: {parsed_data.get('income', 'Not Provided')}
+Credit Score: {parsed_data.get('credit_score', 'Not Provided')}
+Debts: {parsed_data.get('debts', 'Not Provided')}
+Employment Status: {parsed_data.get('employment_status', 'Not Provided')}
 """
-                ai_feedback = get_application_guidance(summary)
-                st.markdown('<div class="success-box">', unsafe_allow_html=True)
-                st.success("🧾 Application Feedback and Next Steps:")
-                st.markdown(ai_feedback, unsafe_allow_html=True)
-                st.markdown('</div>', unsafe_allow_html=True)
+                    ai_feedback = get_application_guidance(summary)
+                    st.success("Application Feedback:")
+                    st.markdown(ai_feedback, unsafe_allow_html=True)
 
-                # Progress Bar
-                completeness = 0
-                if tax_return: completeness += 25
-                if pay_stubs: completeness += 25
-                if bank_statements: completeness += 25
-                if id_proof: completeness += 25
-                st.progress(completeness / 100.0)
-                st.markdown(f"**Application Completeness: {completeness}%**")
+        # Display parsed summary
+        if submitted and summary:
+            st.info("Parsed Details:")
+            st.markdown(summary, unsafe_allow_html=True)
 
-                # Legal Terms Explanation
-                if loan_clause:
-                    with st.spinner("Explaining loan clause..."):
-                        clause_explanation = explain_legal_terms(loan_clause)
-                        st.markdown('<div class="info-box">', unsafe_allow_html=True)
-                        st.info("📜 Loan Clause Explanation:")
-                        st.markdown(clause_explanation, unsafe_allow_html=True)
-                        st.markdown('</div>', unsafe_allow_html=True)
+        # Progress Bar
+        parsed_data = parsed_data if submitted else parse_financial_summary(financial_summary) if financial_summary else {}
+        completeness = sum([
+            25 if parsed_data.get('income') is not None and parsed_data.get('income') != 'Not Provided' else 0,
+            25 if parsed_data.get('credit_score') is not None and parsed_data.get('credit_score') != 'Not Provided' else 0,
+            25 if parsed_data.get('debts') is not None and parsed_data.get('debts') != 'Not Provided' else 0,
+            25 if parsed_data.get('employment_status') is not None and parsed_data.get('employment_status') != 'Not Provided' else 0
+        ])
+        st.progress(completeness / 100.0)
+        missing = []
+        if parsed_data.get('income') is None or parsed_data.get('income') == 'Not Provided': missing.append("Income")
+        if parsed_data.get('credit_score') is None or parsed_data.get('credit_score') == 'Not Provided': missing.append("Credit Score")
+        if parsed_data.get('debts') is None or parsed_data.get('debts') == 'Not Provided': missing.append("Debts")
+        if parsed_data.get('employment_status') is None or parsed_data.get('employment_status') == 'Not Provided': missing.append("Employment Status")
+        st.markdown(f"**Application Completeness: {completeness}%**")
+        if missing and submitted:
+            st.warning(f"Please provide: {', '.join(missing)}")
 
-                # Compliance Check
-                compliance_input = f"""
-Documents Provided:
-- Tax Returns: {"Provided" if tax_return else "Missing"}
-- Pay Stubs: {"Provided" if pay_stubs else "Missing"}
-- Bank Statements: {"Provided" if bank_statements else "Missing"}
-- ID Proof: {"Provided" if id_proof else "Missing"}
-Document Summary: {document_summary if document_summary else "Not Provided"}
-"""
-                with st.spinner("Checking regulatory compliance..."):
-                    compliance_feedback = check_compliance(compliance_input)
-                    st.markdown('<div class="success-box">', unsafe_allow_html=True)
-                    st.success("⚖️ Regulatory Compliance Check:")
-                    st.markdown(compliance_feedback, unsafe_allow_html=True)
-                    st.markdown('</div>', unsafe_allow_html=True)
-
+        if loan_clause and submitted:
+            clause_explanation = explain_legal_terms(loan_clause)
+            st.info("Loan Clause Explanation:")
+            st.markdown(clause_explanation, unsafe_allow_html=True)
 # ------------- TAB 3: FINANCIAL GOALS TRACKER -----------------
 with tab3:
     st.header("🎯 Financial Goals Tracker")
