@@ -68,3 +68,16 @@ Based on the summary and context:
 - [Item 1, if any]
 - [Item 2, if any]
 """
+
+legal_terms_template = """
+You are an expert at explaining complex loan terms in simple, beginner-friendly language. Given the loan clause below, provide a clear explanation of its meaning and its implications for the borrower. Avoid technical jargon and keep the response concise.
+
+**Loan Clause**:
+{loan_clause}
+
+**Response Format**:
+### Explanation
+[Explain the clause in simple terms, focusing on what it means for the borrower.]
+### Implications
+[Describe the impact on the borrower, such as costs, obligations, risks, or benefits.]
+"""

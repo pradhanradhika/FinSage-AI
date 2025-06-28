@@ -130,6 +130,12 @@ def get_consultation_response(user_input: str) -> str:
     chain = LLMChain(llm=llm, prompt=prompt)
     return chain.run(user_input) 
 
+def explain_legal_terms(loan_clause: str) -> str:
+    from prompts import legal_terms_template
+    prompt = PromptTemplate(input_variables=["loan_clause"], template=legal_terms_template)
+    chain = LLMChain(llm=llm, prompt=prompt)
+    return chain.run(loan_clause)
+
 def check_compliance(compliance_input: str) -> str:
     from prompts import compliance_template
     prompt = PromptTemplate(input_variables=["compliance_input"], template=compliance_template)
