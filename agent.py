@@ -124,6 +124,7 @@ Input: {summary}
             "employment_status": employment_status
         }
 
+
 def get_consultation_response(user_input: str) -> str:
     from prompts import consultation_template
     prompt = PromptTemplate(input_variables=["user_input"], template=consultation_template)
@@ -136,11 +137,7 @@ def explain_legal_terms(loan_clause: str) -> str:
     chain = LLMChain(llm=llm, prompt=prompt)
     return chain.run(loan_clause)
 
-def check_compliance(compliance_input: str) -> str:
-    from prompts import compliance_template
-    prompt = PromptTemplate(input_variables=["compliance_input"], template=compliance_template)
-    chain = LLMChain(llm=llm, prompt=prompt)
-    return chain.run(compliance_input)
+
 
 def generate_savings_plan(goals_input: str) -> str:
     from prompts import goals_template

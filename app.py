@@ -1,5 +1,5 @@
 import streamlit as st
-from agent import get_consultation_response, parse_financial_summary,get_application_guidance, explain_legal_terms, check_compliance, generate_savings_plan
+from agent import get_consultation_response, parse_financial_summary,get_application_guidance, explain_legal_terms, generate_savings_plan
 from pathlib import Path
 
 
