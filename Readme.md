@@ -6,7 +6,7 @@
 - **Loan Consultation**: Provides personalized loan recommendations based on user's income, credit score, loan type,and desired amount using LLaMA-3 model
 - **Loan Application Assistant**: Parse financial summaries and receive actionable guidance for loan applications. 
 
-   > From the user input (free text), the structured data is extracted using regex and LLM. ChromaDB retrieves relevant loan info (RAG), and LLaMA-3-8B generates guidance along highlighting missing details of the user required for loan application.
+   > From the user input (free text), the structured data is extracted using regex and LLM. ChromaDB retrieves relevant loan info (RAG), and LLaMA-3-8B generates guidance and highlights user's missing details for the loan application.
 
 - **Financial Goals Tracker**: Generate savings plans based on income, expenses, savings, and user-defined financial goals.
    > LangChain processes the input with a prompt template, and LLaMA-3-8B generates a markdown-formatted savings plan.
