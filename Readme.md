@@ -2,7 +2,7 @@
 
 **FinSage** - An AI powered is a web application designed to assist users with loan consultations, application guidance, legal term explanations, and financial goal planning. It  is a digital financial advisor designed to make complex financial decisions easier, faster for individuals to achieve their goals.FinSage helps users understand their desired loan options by analyzing their details and offering personalized loan recommendations that best match their needs and eligibility.<br>
 
-## Features
+## Features and WorkFlow
 - **Loan Consultation**: Provides personalized loan recommendations based on user's income, credit score, loan type,and desired amount using LLaMA-3 model
 - **Loan Application Assistant**: Parse financial summaries and receive actionable guidance for loan applications. 
 
